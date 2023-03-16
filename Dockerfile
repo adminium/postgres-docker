@@ -72,3 +72,71 @@ RUN set -ex \
     && apk del .fetch-deps .build-deps \
     && rm -rf /build \
     && sed -r -i "s/[#]*\s*(shared_preload_libraries)\s*=\s*'(.*)'/\1 = 'timescaledb,\2'/;s/,'/'/" /usr/local/share/postgresql/postgresql.conf.sample
+
+
+#RUN set -ex \
+#     && apk add --no-cache --virtual .fetch-deps \
+#                ca-certificates \
+#                git \
+#                openssl \
+#                openssl-dev \
+#                tar \
+#    && mkdir -p /build/ \
+#    && git clone https://github.com/jaiminpan/pg_jieba /build/pg_jieba \
+#    && apk add --no-cache --virtual .build-deps \
+#                coreutils \
+#                dpkg-dev dpkg \
+#                gcc \
+#                g++ \
+#                krb5-dev \
+#                libc-dev \
+#                make \
+#                cmake \
+#                util-linux-dev \
+#    && cd /build/pg_jieba \
+#    && git submodule update --init --recursive \
+#    && mkdir build \
+#    && cd build \
+#    && cmake .. \
+#    && make \
+#    && make install \
+#    && apk del .fetch-deps .build-deps \
+#    && cd ~ \
+#    && rm -rf /build \
+#    && if [ "${OSS_ONLY}" != "" ]; then rm -f $(pg_config --pkglibdir)/pg_jieba.so; fi
+
+RUN set -ex \
+     && apk add --no-cache --virtual .fetch-deps \
+                ca-certificates \
+                git \
+                wget \
+                openssl \
+                openssl-dev \
+                tar \
+    && apk add --no-cache --virtual .build-deps \
+                coreutils \
+                dpkg-dev dpkg \
+                gcc \
+                clang \
+                llvm15 \
+                g++ \
+                krb5-dev \
+                libc-dev \
+                make \
+                cmake \
+                util-linux-dev \
+    && mkdir build \
+    && cd build \
+    && wget -q -O - http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2 | tar xfj - \
+    && cd scws-1.2.3  \
+    && ./configure \
+    && make install \
+    && cd .. \
+    && git clone https://github.com/amutu/zhparser.git \
+    && cd zhparser \
+    && make \
+    && make install \
+    && apk del .fetch-deps .build-deps \
+    && cd ~ \
+    && rm -rf /build \
+    && if [ "${OSS_ONLY}" != "" ]; then rm -f $(pg_config --pkglibdir)/zhparser.so; fi
