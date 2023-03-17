@@ -2,9 +2,9 @@ NAME=postgres
 # Default is to timescaledev to avoid unexpected push to the main repo
 # Set ORG to timescale in the caller
 ORG=adminium
-PG_VER=pg12
-PG_VER_NUMBER=$(shell echo $(PG_VER) | cut -c3-)
-TS_VERSION=main
+PG_VER=13.10
+PG_VER_NUMBER=$(PG_VER)
+TS_VERSION=2.10.1
 PREV_TS_VERSION=$(shell wget --quiet -O - https://raw.githubusercontent.com/timescale/timescaledb/${TS_VERSION}/version.config | grep update_from_version | sed -e 's!update_from_version = !!')
 PREV_TS_IMAGE="timescale/timescaledb:$(PREV_TS_VERSION)-pg$(PG_VER_NUMBER)$(PREV_EXTRA)"
 PREV_IMAGE=$(shell if docker pull $(PREV_TS_IMAGE) >/dev/null; then echo "$(PREV_TS_IMAGE)"; else echo "postgres:$(PG_VER_NUMBER)-alpine"; fi )
@@ -14,7 +14,7 @@ PLATFORM=linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
 
 # PUSH_MULTI can be set to nothing for dry-run without pushing during multi-arch build
 PUSH_MULTI=--push
-TAG_VERSION=$(ORG)/$(NAME):$(TS_VERSION)-$(PG_VER)
+TAG_VERSION=$(ORG)/$(NAME):$(PG_VER)
 TAG_LATEST=$(ORG)/$(NAME):latest-$(PG_VER)
 TAG=-t $(TAG_VERSION) $(if $(BETA),,-t $(TAG_LATEST))
 TAG_OSS=-t $(TAG_VERSION)-oss $(if $(BETA),,-t $(TAG_LATEST)-oss)
